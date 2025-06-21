@@ -30,7 +30,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_F10   , KC_F11     , KC_F12   , KC_BSPC   , KC_ENT   , KC_LCTL  ,      TO(2)  , TO(1)  , _______  , _______  , _______  , RSFT_T(KC_ESC)
   ),
   [1] = LAYOUT_universal(
-    KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                            KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
+    KC_Q     , KC_W     , KC_E     , KC_R     , KC_R     ,                            KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
     KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                            KC_H     , KC_J     , RCTL_T(KC_K) , RWIN_T(KC_L)    , KC_MINS  ,
     KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     ,                            KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  ,
     LCTL_T(KC_TAB), KC_LGUI, KC_LALT,KC_BSPC  , KC_ENT   ,KC_SPC,   LT(2,KC_LNG1)   , RSFT_T(KC_LNG2), _______, _______,_______, RSFT_T(KC_ESC)
@@ -76,25 +76,3 @@ combo_t key_combos[] = {
     COMBO(combo1, TO(3)),
     COMBO(combo2, KC_BSLS),
 };
-
-// 前回のレイヤー状態（有効レイヤー）を保持
-static uint32_t prev_layer_state = 0;
-
-void matrix_scan_user(void) {
-    uint32_t current_layer_state = layer_state;
-
-    // AMLが発動＝AUTO_MOUSE_DEFAULT_LAYERがアクティブになった瞬間
-    bool mouse_now_on = IS_LAYER_ON_STATE(current_layer_state, 0);
-    bool mouse_was_off = !IS_LAYER_ON_STATE(prev_layer_state, 0);
-
-    if (mouse_now_on && mouse_was_off) {
-        // 現在デフォルトとして有効になっていたのが LAYER1 または LAYER2 の場合
-        if (get_highest_layer(prev_layer_state) == 1 || get_highest_layer(prev_layer_state) == 2) {
-            // TO(BASE) 相当の処理：全レイヤー無効 → BASEレイヤーに切替
-            layer_clear();
-            layer_on(0);
-        }
-    }
-
-    prev_layer_state = current_layer_state;
-}
