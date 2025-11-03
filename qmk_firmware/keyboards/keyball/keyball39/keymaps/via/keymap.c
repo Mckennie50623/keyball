@@ -76,25 +76,3 @@ combo_t key_combos[] = {
     COMBO(combo1, TO(3)),
     COMBO(combo2, KC_BSLS),
 };
-
-// 前回のレイヤー状態（有効レイヤー）を保持
-static uint32_t prev_layer_state = 0;
-
-void matrix_scan_user(void) {
-    uint32_t current_layer_state = layer_state;
-
-    // AMLが発動＝AUTO_MOUSE_DEFAULT_LAYERがアクティブになった瞬間
-    bool mouse_now_on = IS_LAYER_ON_STATE(current_layer_state, 0);
-    bool mouse_was_off = !IS_LAYER_ON_STATE(prev_layer_state, 0);
-
-    if (mouse_now_on && mouse_was_off) {
-        // 現在デフォルトとして有効になっていたのが LAYER1 または LAYER2 の場合
-        if (get_highest_layer(prev_layer_state) == 1 || get_highest_layer(prev_layer_state) == 2) {
-            // TO(BASE) 相当の処理：全レイヤー無効 → BASEレイヤーに切替
-            layer_clear();
-            layer_on(0);
-        }
-    }
-
-    prev_layer_state = current_layer_state;
-}
