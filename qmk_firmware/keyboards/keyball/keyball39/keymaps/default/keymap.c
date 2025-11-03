@@ -83,6 +83,17 @@ enum layer_names { _BASE = 0, _ALPHA = 1, _SYM = 2, _ADJ = 3 };
 static uint16_t last_move_timer = 0;
 #define MOVE_DEBOUNCE_MS 5
 
+#define MOTION_THRESHOLD 3
+
+static inline uint8_t motion_amount(const report_mouse_t *m) {
+    // スクロールを無視したいなら h/v を入れない（下はx,yのみ）
+    int16_t s = (m->x >= 0 ? m->x : -m->x) + (m->y >= 0 ? m->y : -m->y);
+    // スクロールも判定に含めたい場合は下2行も加える:
+    // s += (m->h >= 0 ? m->h : -m->h);
+    // s += (m->v >= 0 ? m->v : -m->v);
+    return (uint8_t)s;
+}
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
         if (timer_elapsed(last_move_timer) > MOVE_DEBOUNCE_MS) {
