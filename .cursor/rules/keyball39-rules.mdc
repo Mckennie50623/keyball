@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+このプロジェクトはkeyball39と呼ばれる自作キーボードのファームウェアのリポジトリであり、qmkを利用している。
+
+C:\Users\kkoiz_aozk4vs\keyball\qmk_firmware\keyboards\keyball\keyball39\keymaps\default配下のフォルダあるいは、C:\Users\kkoiz_aozk4vs\keyball\qmk_firmware\keyboards\keyball\keyball39配下のkeyball39.cかkeyball39.h、config.hのファイルのみを編集してほしい。

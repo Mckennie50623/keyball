@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // keymap for default
   [0] = LAYOUT_universal(
-    KC_PSCR   , KC_F2     , KC_F3     , KC_C     , KC_I,                     KC_X  , SSNP_VRT  , SSNP_HOR  , SSNP_FRE  , KC_BSPC  ,
+    KC_PSCR   , KC_F2     , KC_F3     , KC_C     , KC_V,                     KC_X  , SSNP_VRT  , SSNP_HOR  , SSNP_FRE  , KC_BSPC  ,
     KC_F4     , KC_F5     , KC_F6     , KC_TAB  , KC_LALT,                           SCRL_TO  , KC_BTN1  , KC_UP    , KC_BTN2  , TO(0) ,
     KC_F7     , KC_F8     , KC_F9     , KC_LSFT  , KC_LGUI ,                           KC_HOME, KC_LEFT  , KC_DOWN  , KC_RGHT  , KC_END ,
     KC_F10   , KC_F11     , KC_F12   , KC_BSPC   , KC_ENT   , KC_LCTL  ,      TO(2)  , TO(1)  , _______  , _______  , _______  , RSFT_T(KC_ESC)
@@ -75,3 +75,25 @@ combo_t key_combos[] = {
     COMBO(combo1, TO(3)),
     COMBO(combo2, KC_BSLS),
 };
+
+#include "timer.h"
+
+enum layer_names { _BASE = 0, _ALPHA = 1, _SYM = 2, _ADJ = 3 };
+
+static uint16_t last_move_timer = 0;
+#define MOVE_DEBOUNCE_MS 5
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
+        if (timer_elapsed(last_move_timer) > MOVE_DEBOUNCE_MS) {
+            if (get_highest_layer(layer_state) != _BASE) {
+                clear_oneshot_layers();
+                clear_oneshot_mods();
+                layer_clear();
+                layer_move(_BASE);
+            }
+            last_move_timer = timer_read();
+        }
+    }
+    return mouse_report;
+}
