@@ -87,7 +87,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
         if (timer_elapsed(last_move_timer) > MOVE_DEBOUNCE_MS) {
             if (get_highest_layer(layer_state) != _BASE) {
-                clear_oneshot_layers_state(0);
+                clear_oneshot_layer_state(0);
                 clear_oneshot_mods();
                 layer_clear();
                 layer_move(_BASE);
