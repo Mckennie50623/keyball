@@ -40,3 +40,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define AUTO_MOUSE_DEFAULT_LAYER_DURATION 300
 #define DYNAMIC_KEYMAP_LAYER_COUNT 4
 #define DEFAULT_LAYER 0
+#define KEYBALL_REPORT_MOUSE_INTERVAL 4
