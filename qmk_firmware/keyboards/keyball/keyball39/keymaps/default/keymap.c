@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // keymap for default
   [0] = LAYOUT_universal(
-    KC_PSCR   , KC_F2     , KC_F3     , C(KC_C)  , C(KC_V),                     C(KC_Z)  , SSNP_VRT  , SSNP_HOR  , SSNP_FRE  , C(KC_E)   ,
-    KC_F4     , KC_F5     , KC_F6     , KC_TAB  , KC_LALT,                           SCRL_TO  , KC_BTN1  , KC_UP    , KC_BTN2  , G(KC_T) ,
+    KC_PSCR   , KC_F2     , KC_F3     , C(KC_C)  , C(KC_V),                     C(KC_Z)  , SSNP_VRT  , SSNP_HOR  , SSNP_FRE  , _G(KC_E)   ,
+    KC_F4     , KC_F5     , KC_F6     , KC_TAB  , KC_LALT,                           SCRL_TO  , KC_BTN1  , KC_UP    , KC_BTN2  , C(KC_T) ,
     KC_F7     , KC_F8     , KC_F9     , KC_LSFT  , KC_LGUI ,                           KC_HOME, KC_LEFT  , KC_DOWN  , KC_RGHT  , KC_END ,
     KC_F10   , KC_F11     , KC_F12   , KC_LCTL   , KC_ENT   , KC_BSPC  ,      TO(2)  , TO(1)  , _______  , _______  , _______  , RSFT_T(KC_ESC)
     ),
