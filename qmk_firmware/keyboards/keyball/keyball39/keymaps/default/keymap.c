@@ -81,9 +81,9 @@ combo_t key_combos[] = {
 enum layer_names { _BASE = 0, _ALPHA = 1, _SYM = 2, _ADJ = 3 };
 
 static uint16_t last_move_timer = 0;
-#define MOVE_DEBOUNCE_MS 20
+#define MOVE_DEBOUNCE_MS 10
 
-#define MOTION_THRESHOLD 10
+#define MOTION_THRESHOLD 6
 
 static inline uint8_t motion_amount(const report_mouse_t *m) {
     // スクロールを無視したいなら h/v を入れない（下はx,yのみ）
