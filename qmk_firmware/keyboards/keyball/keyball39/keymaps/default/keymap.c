@@ -106,6 +106,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     clear_oneshot_mods();
                     layer_clear();
                     layer_move(_BASE);
+                    tap_code(KC_LANG2);  // 半角（英数）に切り替え
                     last_move_timer = timer_read();
                 }
             }
