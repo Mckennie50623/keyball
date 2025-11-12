@@ -83,7 +83,10 @@ combo_t key_combos[] = {
 enum layer_names { _BASE = 0, _ALPHA = 1, _SYM = 2, _ADJ = 3 };
 
 static uint16_t last_move_timer = 0;
+static uint16_t lang2_timer = 0;
+static bool pending_lang2 = false;
 #define MOVE_DEBOUNCE_MS 10
+#define LANG2_DELAY_MS 8
 
 #define MOTION_THRESHOLD 6
 
@@ -97,6 +100,12 @@ static inline uint8_t motion_amount(const report_mouse_t *m) {
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    // 保留中のキー送信を処理（非同期で軽量化、マウスレポートをブロックしない）
+    if (pending_lang2 && timer_elapsed(lang2_timer) > LANG2_DELAY_MS) {
+        tap_code(KC_LNG2);  // 半角（英数）に切り替え
+        pending_lang2 = false;
+    }
+    
     if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
         uint8_t motion = motion_amount(&mouse_report);
         if (motion >= MOTION_THRESHOLD) {
@@ -106,7 +115,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     clear_oneshot_mods();
                     layer_clear();
                     layer_move(_BASE);
-                    tap_code(KC_LNG2);  // 半角（英数）に切り替え
+                    // キー送信を遅延させて非同期処理（重い処理を避けてProMicroの負荷を軽減）
+                    pending_lang2 = true;
+                    lang2_timer = timer_read();
                     last_move_timer = timer_read();
                 }
             }
