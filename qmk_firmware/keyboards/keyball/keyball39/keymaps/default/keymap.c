@@ -71,9 +71,11 @@ void oledkit_render_info_user(void) {
 
 const uint16_t PROGMEM combo1[] = {KC_LCTL, TO(2) , COMBO_END};
 const uint16_t PROGMEM combo2[] = {S(KC_INT3), S(KC_BSLS), COMBO_END};
+const uint16_t PROGMEM combo3[] = {KC_C, KC_LGUI, COMBO_END};
 combo_t key_combos[] = {
     COMBO(combo1, TO(3)),
     COMBO(combo2, KC_BSLS),
+    COMBO(combo3, G(KC_C)),
 };
 
 #include "timer.h"
