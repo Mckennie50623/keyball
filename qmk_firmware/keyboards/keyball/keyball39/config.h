@@ -77,3 +77,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // To squeeze firmware size
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
+
+// Scroll speed configuration
+// Higher values = slower scroll
+// Default is 4 (1/8), setting to 5 (1/16) for slower scrolling
+#define KEYBALL_SCROLL_DIV_DEFAULT 5

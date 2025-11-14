@@ -35,6 +35,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TAP_CODE_DELAY 5
 
+// Tap-hold configuration
+// QUICK_TAP_TERM: Time window for quick taps. If a key is released and pressed again
+// within this time, it's treated as a tap. Lower values make it easier to hold
+// after a tap. Default is 200ms.
+#define QUICK_TAP_TERM 100
+
 // #define POINTING_DEVICE_AUTO_MOUSE_ENABLE
 // #define AUTO_MOUSE_DEFAULT_LAYER 0
 // #define AUTO_MOUSE_DEFAULT_LAYER_DURATION 300
