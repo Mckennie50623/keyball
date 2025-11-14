@@ -78,8 +78,8 @@ combo_t key_combos[] = {
     COMBO(combo1, TO(3)),
     COMBO(combo2, KC_BSLS),
     COMBO(combo3, G(KC_C)),
-    COMBO(combo4, C(KC_PLUS)),
-    COMBO(combo5, C(KC_SCLN)),
+    COMBO(combo4, C(KC_SCLN)),
+    COMBO(combo5, C(KC_QUOT)),
 };
 
 #include "timer.h"
