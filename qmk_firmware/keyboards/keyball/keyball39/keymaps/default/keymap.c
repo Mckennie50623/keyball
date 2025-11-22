@@ -108,55 +108,83 @@ static inline uint8_t motion_amount(const report_mouse_t *m) {
 // 括弧の自動ペアリング処理
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
-        // キーコードからベースキーコードを取得（修飾キーを除去）
-        uint16_t base_keycode = keycode;
-        bool shift_pressed = false;
-        
-        if (keycode >= QK_MODS && keycode <= QK_MODS_MAX) {
-            // 修飾キーが含まれている場合
-            shift_pressed = (keycode & QK_LSFT) || (keycode & QK_RSFT);
-            base_keycode = keycode & 0xFF;
-        } else {
-            // 現在押されている修飾キーを確認
-            uint8_t mods = get_mods();
-            shift_pressed = (mods & MOD_MASK_SHIFT);
-        }
-        
-        switch (base_keycode) {
-            case KC_LBRC:  // [ または {
-                if (shift_pressed) {
-                    // {
-                    tap_code16(S(KC_LBRC));  // {
-                    tap_code16(S(KC_RBRC));  // }
-                } else {
-                    // [
-                    tap_code(KC_LBRC);  // [
-                    tap_code(KC_RBRC);  // ]
-                }
-                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                return false;  // 元のキーイベントをキャンセル
-                
-            case KC_9:  // 9 または (
-                if (shift_pressed) {
-                    // (
-                    tap_code16(S(KC_9));  // (
-                    tap_code16(S(KC_0));  // )
-                    tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                    return false;
-                }
-                break;
-                
-            case KC_LPRN:  // ( (専用キーコードの場合)
-                tap_code16(KC_LPRN);  // ( - tap_code16を使用
-                tap_code16(KC_RPRN);  // ) - tap_code16を使用
+        // キーコードを直接チェック（S(KC_9)はKC_LPRNとして来る可能性がある）
+        switch (keycode) {
+            case KC_LPRN:  // ( - S(KC_9)が押された場合
+                tap_code16(KC_LPRN);  // (
+                tap_code16(KC_RPRN);  // )
                 tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
                 return false;
+                
+            case KC_RPRN:  // ) - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+                
+            case KC_LBRC:  // [
+                tap_code(KC_LBRC);  // [
+                tap_code(KC_RBRC);  // ]
+                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                return false;
+                
+            case KC_RBRC:  // ] - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+                
+            case S(KC_LBRC):  // { - シフト+[が押された場合
+                tap_code16(S(KC_LBRC));  // {
+                tap_code16(S(KC_RBRC));  // }
+                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                return false;
+                
+            case S(KC_RBRC):  // } - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
                 
             case KC_INT1:  // 「
                 tap_code(KC_INT1);  // 「
                 tap_code16(S(KC_INT1));  // 」
                 tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
                 return false;
+                
+            case S(KC_INT1):  // 」 - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+        }
+        
+        // QK_MODS形式のキーコードもチェック（念のため）
+        if (keycode >= QK_MODS && keycode <= QK_MODS_MAX) {
+            uint16_t base_keycode = keycode & 0xFF;
+            bool shift_pressed = (keycode & QK_LSFT) || (keycode & QK_RSFT);
+            
+            switch (base_keycode) {
+                case KC_LBRC:  // [ または {
+                    if (shift_pressed) {
+                        // {
+                        tap_code16(S(KC_LBRC));  // {
+                        tap_code16(S(KC_RBRC));  // }
+                    } else {
+                        // [
+                        tap_code(KC_LBRC);  // [
+                        tap_code(KC_RBRC);  // ]
+                    }
+                    tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                    return false;
+                    
+                case KC_9:  // 9 または (
+                    if (shift_pressed) {
+                        // (
+                        tap_code16(S(KC_9));  // (
+                        tap_code16(S(KC_0));  // )
+                        tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                        return false;
+                    }
+                    break;
+                    
+                case KC_INT1:  // 「
+                    if (!shift_pressed) {
+                        tap_code(KC_INT1);  // 「
+                        tap_code16(S(KC_INT1));  // 」
+                        tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                        return false;
+                    }
+                    break;
+            }
         }
     }
     return true;  // 他のキーは通常通り処理
