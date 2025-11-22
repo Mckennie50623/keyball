@@ -20,27 +20,67 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "quantum.h"
 
+enum custom_keycodes {
+  SAFE_COPY = SAFE_RANGE,
+  SAFE_PASTE,
+  SAFE_UNDO,
+  SAFE_LNG1,
+  SAFE_LNG2,
+  SAFE_ALT_LEFT,
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  switch(keycode) {
+
+      case SAFE_COPY:
+          if (record->event.pressed) SEND_STRING(SS_LCTRL("c"));
+          return false;
+
+      case SAFE_PASTE:
+          if (record->event.pressed) SEND_STRING(SS_LCTRL("v"));
+          return false;
+
+      case SAFE_UNDO:
+          if (record->event.pressed) SEND_STRING(SS_LCTRL("z"));
+          return false;
+
+      case SAFE_LNG1:
+          if (record->event.pressed) SEND_STRING(SS_TAP(X_GRAVE));
+          return false;
+
+      case SAFE_LNG2:
+          if (record->event.pressed) SEND_STRING(SS_TAP(X_INT1));
+          return false;
+
+      case SAFE_ALT_LEFT:
+          if (record->event.pressed) SEND_STRING(SS_LALT(SS_TAP(X_LEFT)));
+          return false;
+  }
+  return true;
+}
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // keymap for default
   [0] = LAYOUT_universal(
-    KC_PSCR   , KC_F2     , KC_F3     , C(KC_C)  , C(KC_V),                     C(KC_Z)  , SSNP_VRT  , SSNP_HOR  , SSNP_FRE  , KC_DEL,
-    KC_F4     , KC_F5     , KC_F6     , KC_TAB  , KC_LALT,                           SCRL_TO  , KC_BTN1  , KC_UP    , KC_BTN2  , A(KC_LEFT) ,
-    KC_F7     , KC_F8     , KC_F9     , KC_LSFT  , KC_LGUI ,                           KC_HOME, KC_LEFT  , KC_DOWN  , KC_RGHT  , KC_END ,
-    KC_F10   , KC_F11     , KC_F12   , KC_LCTL   , KC_ENT   , KC_BSPC  ,      TO(2)  , TO(1)  , _______  , _______  , _______  , RSFT_T(KC_ESC)
-    ),
+    KC_PSCR, KC_F2, KC_F3, SAFE_COPY, SAFE_PASTE,             SAFE_UNDO, SSNP_VRT, SSNP_HOR, SSNP_FRE, KC_DEL,
+    KC_F4,   KC_F5, KC_F6, KC_TAB, KC_LALT,                   SCRL_TO, KC_BTN1, KC_UP, KC_BTN2, SAFE_ALT_LEFT,
+    KC_F7,   KC_F8, KC_F9, KC_LSFT, KC_LGUI,                  KC_HOME, KC_LEFT, KC_DOWN, KC_RGHT, KC_END,
+    KC_F10,  KC_F11, KC_F12, KC_LCTL, KC_ENT, KC_BSPC,   TO(2), TO(1), _______, _______, _______, RSFT_T(KC_ESC)
+  ),
+
   [1] = LAYOUT_universal(
-    KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                            KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
-    KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                            KC_H     , KC_J     , RCTL_T(KC_K) , RWIN_T(KC_L)    , KC_MINS  ,
-    KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     ,                            KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  ,
-    LCTL_T(KC_TAB), KC_LGUI, KC_LALT,KC_SPC  , KC_ENT   ,KC_BSPC,   LT(2,KC_LNG2)   , RSFT_T(KC_LNG1), _______, _______,_______, RSFT_T(KC_ESC)
+      KC_Q, KC_W, KC_E, KC_R, KC_T,                   KC_Y, KC_U, KC_I, KC_O, KC_P,
+      KC_A, KC_S, KC_D, KC_F, KC_G,                   KC_H, KC_J, RCTL_T(KC_K), RWIN_T(KC_L), KC_MINS,
+      KC_Z, KC_X, KC_C, KC_V, KC_B,                   KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH,
+      LCTL_T(KC_TAB), KC_LGUI, KC_LALT, KC_SPC, KC_ENT, KC_BSPC, LT(2, SAFE_LNG2), RSFT_T(SAFE_LNG1), _______, _______, _______, RSFT_T(KC_ESC)
   ),
 
   [2] = LAYOUT_universal(
-    KC_1    , KC_2     , KC_3    , KC_0   , S(KC_2)  ,                            S(KC_RBRC)    ,   KC_INT1  , S(KC_6)    , S(KC_INT3)    ,  S(KC_BSLS)  ,
-    KC_4    , KC_5     , KC_6    , KC_EXLM   ,  S(KC_7)  ,                           S(KC_8), S(KC_SCLN)  , S(KC_INT1)  , KC_SCLN     , S(KC_9)  ,
-    KC_7    , KC_8     , KC_9    , KC_DLR    ,  KC_EQL,                            KC_RBRC  , KC_DQUO   , KC_PERC  , KC_QUOT  , KC_BSLS   ,
-    KC_LBRC , KC_HASH  , S(KC_EQL)  , KC_SPC  , KC_ENT  , _______ ,       RCTL_T(KC_LNG2)   , TO(1)   , _______  , KC_RALT  , KC_RGUI  , S(KC_LBRC)
+      KC_1, KC_2, KC_3, KC_0, S(KC_2),                     S(KC_RBRC), KC_INT1, S(KC_6), S(KC_INT3), S(KC_BSLS),
+      KC_4, KC_5, KC_6, S(KC_1), S(KC_7),                 S(KC_8), S(KC_SCLN), S(KC_INT1), KC_SCLN, S(KC_9),
+      KC_7, KC_8, KC_9, KC_DLR, KC_EQL,                   KC_RBRC, KC_DQUO, KC_PERC, KC_QUOT, KC_BSLS,
+      KC_LBRC, KC_HASH, S(KC_EQL), KC_SPC, KC_ENT, _______, RCTL_T(SAFE_LNG2), TO(1), _______, KC_RALT, KC_RGUI, S(KC_LBRC)
   ),
 
   [3] = LAYOUT_universal(
@@ -129,3 +169,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     }
     return mouse_report;
 }
+
+
+
