@@ -105,3 +105,95 @@ static inline uint8_t motion_amount(const report_mouse_t *m) {
     return (uint8_t)s;
 }
 
+// 括弧の自動ペアリング処理
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        // キーコードを直接チェック
+        switch (keycode) {
+            case S(KC_8):  // (
+                tap_code16(S(KC_8));  // (
+                tap_code16(S(KC_9));  // )
+                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                return false;
+                
+            case S(KC_9):  // ) - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+                
+            case KC_RBRC:  // [
+                tap_code(KC_RBRC);  // [
+                tap_code(KC_BSLS);  // ]
+                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                return false;
+                
+            case KC_BSLS:  // ] - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+                
+            case S(KC_RBRC):  // { - シフト+[が押された場合
+                tap_code16(S(KC_RBRC));  // {
+                tap_code16(S(KC_BSLS));  // }
+                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                return false;
+                
+            case S(KC_BSLS):  // } - 閉じ括弧が押された場合は何もしない（通常の動作）
+                return true;
+        }
+        
+        // QK_MODS形式のキーコードもチェック（S(KC_LBRC)などがこの形式で来る可能性がある）
+        if (keycode >= QK_MODS && keycode <= QK_MODS_MAX) {
+            uint16_t base_keycode = keycode & 0xFF;
+            bool shift_pressed = (keycode & QK_LSFT) || (keycode & QK_RSFT);
+            
+            if (shift_pressed) {
+                switch (base_keycode) {
+                    case KC_LBRC:  // { - S(KC_LBRC)が押された場合
+                        tap_code16(S(KC_LBRC));  // {
+                        tap_code16(S(KC_RBRC));  // }
+                        tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
+                        return false;
+                        
+                    case KC_RBRC:  // } - 閉じ括弧が押された場合は何もしない（通常の動作）
+                        return true;
+                }
+            }
+        }
+    }
+    return true;  // 他のキーは通常通り処理
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    // 保留中のキー送信を処理（非同期で軽量化、マウスレポートをブロックしない）
+    if (pending_lang2) {
+        uint16_t elapsed = timer_elapsed(lang2_timer);
+        if (lang2_count == 0 && elapsed > LANG2_DELAY_MS) {
+            // 1回目の送信
+            tap_code(KC_LNG2);  // 半角（英数）に切り替え
+            lang2_count = 1;
+            lang2_timer = timer_read();  // タイマーをリセット
+        } else if (lang2_count == 1 && elapsed > LANG2_REPEAT_DELAY_MS) {
+            // 2回目の送信（確実性を高めるため）
+            tap_code(KC_LNG2);
+            pending_lang2 = false;
+            lang2_count = 0;
+        }
+    }
+    
+    if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
+        uint8_t motion = motion_amount(&mouse_report);
+        if (motion >= MOTION_THRESHOLD) {
+            if (timer_elapsed(last_move_timer) > MOVE_DEBOUNCE_MS) {
+                if (get_highest_layer(layer_state) != _BASE) {
+                    clear_oneshot_layer_state(0);
+                    clear_oneshot_mods();
+                    layer_clear();
+                    layer_move(_BASE);
+                    // キー送信を遅延させて非同期処理（重い処理を避けてProMicroの負荷を軽減）
+                    pending_lang2 = true;
+                    lang2_count = 0;  // カウンターをリセット
+                    lang2_timer = timer_read();
+                    last_move_timer = timer_read();
+                }
+            }
+        }
+    }
+    return mouse_report;
+}

@@ -105,60 +105,6 @@ static inline uint8_t motion_amount(const report_mouse_t *m) {
     return (uint8_t)s;
 }
 
-// 括弧の自動ペアリング処理
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        // キーコードを直接チェック
-        switch (keycode) {
-            case S(KC_8):  // (
-                tap_code16(S(KC_8));  // (
-                tap_code16(S(KC_9));  // )
-                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                return false;
-                
-            case S(KC_9):  // ) - 閉じ括弧が押された場合は何もしない（通常の動作）
-                return true;
-                
-            case KC_RBRC:  // [
-                tap_code(KC_RBRC);  // [
-                tap_code(KC_BSLS);  // ]
-                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                return false;
-                
-            case KC_BSLS:  // ] - 閉じ括弧が押された場合は何もしない（通常の動作）
-                return true;
-                
-            case S(KC_RBRC):  // { - シフト+[が押された場合
-                tap_code16(S(KC_RBRC));  // {
-                tap_code16(S(KC_BSLS));  // }
-                tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                return false;
-                
-            case S(KC_BSLS):  // } - 閉じ括弧が押された場合は何もしない（通常の動作）
-                return true;
-        }
-        
-        // QK_MODS形式のキーコードもチェック（S(KC_LBRC)などがこの形式で来る可能性がある）
-        if (keycode >= QK_MODS && keycode <= QK_MODS_MAX) {
-            uint16_t base_keycode = keycode & 0xFF;
-            bool shift_pressed = (keycode & QK_LSFT) || (keycode & QK_RSFT);
-            
-            if (shift_pressed) {
-                switch (base_keycode) {
-                    case KC_LBRC:  // { - S(KC_LBRC)が押された場合
-                        tap_code16(S(KC_LBRC));  // {
-                        tap_code16(S(KC_RBRC));  // }
-                        tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
-                        return false;
-                        
-                    case KC_RBRC:  // } - 閉じ括弧が押された場合は何もしない（通常の動作）
-                        return true;
-                }
-            }
-        }
-    }
-    return true;  // 他のキーは通常通り処理
-}
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     // 保留中のキー送信を処理（非同期で軽量化、マウスレポートをブロックしない）
