@@ -30,18 +30,18 @@ enum custom_keycodes {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch(keycode) {
+  switch (keycode) {
 
       case SAFE_COPY:
-          if (record->event.pressed) SEND_STRING(SS_LCTRL("c"));
+          if (record->event.pressed) SEND_STRING(SS_LCTL("c"));
           return false;
 
       case SAFE_PASTE:
-          if (record->event.pressed) SEND_STRING(SS_LCTRL("v"));
+          if (record->event.pressed) SEND_STRING(SS_LCTL("v"));
           return false;
 
       case SAFE_UNDO:
-          if (record->event.pressed) SEND_STRING(SS_LCTRL("z"));
+          if (record->event.pressed) SEND_STRING(SS_LCTL("z"));
           return false;
 
       case SAFE_LNG1:
@@ -56,6 +56,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           if (record->event.pressed) SEND_STRING(SS_LALT(SS_TAP(X_LEFT)));
           return false;
   }
+
   return true;
 }
 
