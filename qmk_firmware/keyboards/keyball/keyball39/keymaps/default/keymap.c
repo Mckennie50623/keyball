@@ -110,22 +110,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         // キーコードを直接チェック（S(KC_9)はKC_LPRNとして来る可能性がある）
         switch (keycode) {
-            case KC_LPRN:  // ( - S(KC_9)が押された場合
-                tap_code16(KC_LPRN);  // (
-                tap_code16(KC_RPRN);  // )
+            case S(KC_8):  // ( - S(KC_9)が押された場合
+                tap_code16(S(KC_8));  // (
+                tap_code16(S(KC_9));  // )
                 tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
                 return false;
                 
-            case KC_RPRN:  // ) - 閉じ括弧が押された場合は何もしない（通常の動作）
+            case S(KC_9):  // ) - 閉じ括弧が押された場合は何もしない（通常の動作）
                 return true;
                 
-            case KC_LBRC:  // [
-                tap_code(KC_LBRC);  // [
-                tap_code(KC_RBRC);  // ]
+            case KC_RBRC:  // [
+                tap_code(KC_RBRC);  // [
+                tap_code(KC_BSLS);  // ]
                 tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
                 return false;
                 
-            case KC_RBRC:  // ] - 閉じ括弧が押された場合は何もしない（通常の動作）
+            case KC_BSLS:  // ] - 閉じ括弧が押された場合は何もしない（通常の動作）
                 return true;
                 
             case S(KC_LBRC):  // { - シフト+[が押された場合
