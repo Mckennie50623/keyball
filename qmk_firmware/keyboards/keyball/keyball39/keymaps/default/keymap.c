@@ -89,8 +89,10 @@ enum layer_names { _BASE = 0, _ALPHA = 1, _SYM = 2, _ADJ = 3 };
 static uint16_t last_move_timer = 0;
 static uint16_t lang2_timer = 0;
 static bool pending_lang2 = false;
+static uint8_t lang2_count = 0;  // キー送信回数をカウント
 #define MOVE_DEBOUNCE_MS 10
-#define LANG2_DELAY_MS 8
+#define LANG2_DELAY_MS 30  // 8msから30msに延長（OS/IMEが確実に受け取れるように）
+#define LANG2_REPEAT_DELAY_MS 10  // 2回目の送信までの間隔
 
 #define MOTION_THRESHOLD 6
 
@@ -105,9 +107,19 @@ static inline uint8_t motion_amount(const report_mouse_t *m) {
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     // 保留中のキー送信を処理（非同期で軽量化、マウスレポートをブロックしない）
-    if (pending_lang2 && timer_elapsed(lang2_timer) > LANG2_DELAY_MS) {
-        tap_code(KC_LNG2);  // 半角（英数）に切り替え
-        pending_lang2 = false;
+    if (pending_lang2) {
+        uint16_t elapsed = timer_elapsed(lang2_timer);
+        if (lang2_count == 0 && elapsed > LANG2_DELAY_MS) {
+            // 1回目の送信
+            tap_code(KC_LNG2);  // 半角（英数）に切り替え
+            lang2_count = 1;
+            lang2_timer = timer_read();  // タイマーをリセット
+        } else if (lang2_count == 1 && elapsed > LANG2_REPEAT_DELAY_MS) {
+            // 2回目の送信（確実性を高めるため）
+            tap_code(KC_LNG2);
+            pending_lang2 = false;
+            lang2_count = 0;
+        }
     }
     
     if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
@@ -121,6 +133,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     layer_move(_BASE);
                     // キー送信を遅延させて非同期処理（重い処理を避けてProMicroの負荷を軽減）
                     pending_lang2 = true;
+                    lang2_count = 0;  // カウンターをリセット
                     lang2_timer = timer_read();
                     last_move_timer = timer_read();
                 }
