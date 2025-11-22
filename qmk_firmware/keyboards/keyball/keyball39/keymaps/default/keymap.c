@@ -147,8 +147,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 break;
                 
             case KC_LPRN:  // ( (専用キーコードの場合)
-                tap_code(KC_LPRN);  // (
-                tap_code(KC_RPRN);  // )
+                tap_code16(KC_LPRN);  // ( - tap_code16を使用
+                tap_code16(KC_RPRN);  // ) - tap_code16を使用
                 tap_code(KC_LEFT);  // カーソルを括弧の間に戻す
                 return false;
                 
